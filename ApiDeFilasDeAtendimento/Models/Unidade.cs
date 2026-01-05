@@ -9,9 +9,9 @@ namespace ApiDeFilasDeAtendimento.Models
         [Key]
         public Guid Id { get; set; } = new Guid();
         public string Local { get; set; }
-        ICollection<ApplicationUser> ApplicationUsers { get; set; } = [];
-        ICollection<Guiche> Guiches { get; set; } = [];
-        ICollection<FilaSenha> FilasSenhas { get; set; } = [];
+        public ICollection<ApplicationUser> ApplicationUsers { get; set; } = [];
+        public ICollection<Guiche> Guiches { get; set; } = [];
+        public ICollection<FilaSenha> FilasSenhas { get; set; } = [];
 
     }
 }

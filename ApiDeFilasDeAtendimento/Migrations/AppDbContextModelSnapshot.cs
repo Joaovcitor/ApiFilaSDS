@@ -73,6 +73,9 @@ namespace ApiDeFilasDeAtendimento.Migrations
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("boolean");
 
+                    b.Property<Guid?>("UnidadeId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("UserName")
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)");
@@ -85,6 +88,8 @@ namespace ApiDeFilasDeAtendimento.Migrations
                     b.HasIndex("NormalizedUserName")
                         .IsUnique()
                         .HasDatabaseName("UserNameIndex");
+
+                    b.HasIndex("UnidadeId");
 
                     b.ToTable("AspNetUsers", (string)null);
                 });
@@ -139,6 +144,8 @@ namespace ApiDeFilasDeAtendimento.Migrations
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("UnidadeId");
 
                     b.ToTable("FilaSenha");
                 });
@@ -318,6 +325,22 @@ namespace ApiDeFilasDeAtendimento.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("ApiDeFilasDeAtendimento.Models.ApplicationUser", b =>
+                {
+                    b.HasOne("ApiDeFilasDeAtendimento.Models.Unidade", null)
+                        .WithMany("ApplicationUsers")
+                        .HasForeignKey("UnidadeId");
+                });
+
+            modelBuilder.Entity("ApiDeFilasDeAtendimento.Models.FilaSenha", b =>
+                {
+                    b.HasOne("ApiDeFilasDeAtendimento.Models.Unidade", null)
+                        .WithMany("FilasSenhas")
+                        .HasForeignKey("UnidadeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("ApiDeFilasDeAtendimento.Models.Guiche", b =>
                 {
                     b.HasOne("ApiDeFilasDeAtendimento.Models.ApplicationUser", "Funcionario")
@@ -327,7 +350,7 @@ namespace ApiDeFilasDeAtendimento.Migrations
                         .IsRequired();
 
                     b.HasOne("ApiDeFilasDeAtendimento.Models.Unidade", "Unidade")
-                        .WithMany()
+                        .WithMany("Guiches")
                         .HasForeignKey("UnidadeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -386,6 +409,15 @@ namespace ApiDeFilasDeAtendimento.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("ApiDeFilasDeAtendimento.Models.Unidade", b =>
+                {
+                    b.Navigation("ApplicationUsers");
+
+                    b.Navigation("FilasSenhas");
+
+                    b.Navigation("Guiches");
                 });
 #pragma warning restore 612, 618
         }

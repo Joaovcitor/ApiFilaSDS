@@ -1,10 +1,11 @@
 ﻿using ApiDeFilasDeAtendimento.Context;
 using ApiDeFilasDeAtendimento.DTOs.Senhas;
+using ApiDeFilasDeAtendimento.Enums;
 using ApiDeFilasDeAtendimento.Hubs;
 using ApiDeFilasDeAtendimento.Interfaces;
 using ApiDeFilasDeAtendimento.Models;
-using ApiDeFilasDeAtendimento.Enums;
 using AutoMapper;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,16 +16,21 @@ namespace ApiDeFilasDeAtendimento.Services
         private readonly AppDbContext _context;
         private readonly IMapper _mapper;
         private readonly IHubContext<QueueHub> _hubContext;
-
-        public FilaSenhaService(AppDbContext context, IHubContext<QueueHub> hubContext, IMapper mapper)
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        public FilaSenhaService(AppDbContext context, IHubContext<QueueHub> hubContext, IMapper mapper, UserManager<ApplicationUser> userManager, IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
             _hubContext = hubContext;
             _mapper = mapper;
+            _userManager = userManager;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<FilaSenha> CreateSenha(SenhaDtoCreate dados)
         {
+            var userLogado = await _userManager.GetUserAsync(
+            _httpContextAccessor.HttpContext!.User);
             var novaSenha = _mapper.Map<FilaSenha>(dados);
 
             var dataHoje = DateTime.UtcNow.Date;
@@ -36,6 +42,7 @@ namespace ApiDeFilasDeAtendimento.Services
 
             novaSenha.Numero = ultimoNumero + 1;
             novaSenha.DataCriacao = DateTime.UtcNow;
+            novaSenha.UnidadeId = userLogado.LocalId;
 
             _context.Set<FilaSenha>().Add(novaSenha);
             await _context.SaveChangesAsync();
@@ -44,9 +51,18 @@ namespace ApiDeFilasDeAtendimento.Services
 
             return novaSenha;
         }
-
+        public async Task<List<FilaSenha>> GetAguardando()
+        {
+            return await _context.Set<FilaSenha>().Where(s => s.StatusSenha == StatusSenha.AGUARDANDO).OrderBy(s => s.Prioritario ? 0 : 1).ThenBy(s => s.DataCriacao).ToListAsync();
+        }
         public async Task<FilaSenha> UpdateStatusForCall(SenhaDtoUpdateStatusForCall dados)
         {
+            var userLogado = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext!.User);
+            var guiche = await _context.Guiche
+            .Where(g => g.FuncionarioId == userLogado.Id)
+            .Select(g => new { g.Id }) // só o que interessa
+            .FirstOrDefaultAsync()
+            ?? throw new Exception("Guichê não encontrado para este usuário");
             // Assumindo que o Guid Id vem dentro do DTO
             var senha = await _context.Set<FilaSenha>().FindAsync(dados.Id)
                         ?? throw new Exception("Senha não encontrada.");
@@ -56,6 +72,7 @@ namespace ApiDeFilasDeAtendimento.Services
             senha.StatusSenha = StatusSenha.CHAMADA;
             senha.DataChamada = DateTime.UtcNow;
             senha.QuantidadeDeChamadas++;
+            senha.GuicheId = guiche.Id;
 
             await _context.SaveChangesAsync();
 

@@ -46,6 +46,17 @@ namespace ApiDeFilasDeAtendimento.Controllers
 
             return Ok(guiche);
         }
+        [HttpGet("buscar-unidade/{Id}")]
+        public async Task<IActionResult> GetUnidade(Guid Id)
+        {
+            var unidade = await _context.Unidade
+            .Include(u => u.Guiches)
+            .Include(u => u.FilasSenhas)
+            .FirstOrDefaultAsync(u => u.Id == Id);
+            if (unidade == null) return NotFound();
 
+            return Ok(unidade);
+
+        }
     }
 }

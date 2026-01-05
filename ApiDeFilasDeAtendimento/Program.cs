@@ -43,10 +43,18 @@ builder.Services.ConfigureApplicationCookie(options =>
     };
 });
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(
+            new JsonStringEnumConverter()
+        );
+    });
+
 builder.Services.AddOpenApi();
 builder.Services.AddAutoMapper(cfg => { }, Assembly.GetExecutingAssembly());
-builder.Services.AddSignalR().AddJsonProtocol(options => {
+builder.Services.AddSignalR().AddJsonProtocol(options =>
+{
     options.PayloadSerializerOptions.Converters.Add(new JsonStringEnumConverter());
 });
 builder.Services.AddScoped<IFilaSenhaService, FilaSenhaService>();
@@ -79,6 +87,6 @@ app.UseAuthorization();
 app.MapIdentityApi<ApplicationUser>();
 
 app.MapControllers();
-app.MapHub<QueueHub>("/queueHub");
+app.MapHub<QueueHub>("/hubs/queue");
 
 app.Run();

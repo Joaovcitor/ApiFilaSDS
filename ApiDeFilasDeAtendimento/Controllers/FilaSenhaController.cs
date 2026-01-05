@@ -25,6 +25,13 @@ namespace ApiDeFilasDeAtendimento.Controllers
             return CreatedAtAction(nameof(Criar), new { id = senha.Id }, senha);
         }
 
+        [HttpGet("aguardando")]
+        public async Task<IActionResult> GetAguardando()
+        {
+            var senhas = await _filaService.GetAguardando();
+            return Ok(senhas);
+        }
+
         [HttpPut("chamar-proximo")]
         public async Task<IActionResult> Chamar([FromBody] SenhaDtoUpdateStatusForCall dados)
         {
