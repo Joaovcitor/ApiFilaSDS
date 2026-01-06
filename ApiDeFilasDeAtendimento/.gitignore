@@ -13,3 +13,10 @@ obj/
 
 # Logs
 *.log
+
+# Visual Studio (novo formato)
+*.slnx
+
+# Build (qualquer nível)
+**/bin/
+**/obj/
