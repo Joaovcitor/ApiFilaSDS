@@ -82,7 +82,7 @@ namespace ApiDeFilasDeAtendimento.Services
                     .Where(s => s.TipoAtendimento == userLogado.Atendimento)
                     .FirstOrDefaultAsync(s => s.Id == dados.Id)
                     ?? throw new Exception("Esta senha não existe");
-                    if(senha.StatusSenha == StatusSenha.CHAMADA && (DateTime.UtcNow - senha.DataChamada.Value).TotalSeconds < 30)
+                    if (senha.StatusSenha == StatusSenha.CHAMADA && (DateTime.UtcNow - senha.DataChamada.Value).TotalSeconds < 30)
                     {
                         throw new Exception("Esta senha já foi chamada recentemente");
                     }
@@ -101,11 +101,14 @@ namespace ApiDeFilasDeAtendimento.Services
                             "A senha foi modificada por outro usuário. Tente novamente.");
                     }
                     await transaction.CommitAsync();
-                    var senhaAtualizada = await _context.Set<FilaSenha>().FindAsync(dados.Id);
+                    var senhaAtualizada = await _context.Set<FilaSenha>()
+                    .Include(s => s.Guiche)
+                    .FirstOrDefaultAsync(s => s.Id == dados.Id);
                     var ultimasChamadas = await GetUltimasChamadas(senhaAtualizada!.UnidadeId);
                     await _hubContext.Clients.All.SendAsync("TicketCalled", senhaAtualizada, ultimasChamadas);
                     return senhaAtualizada;
-                } catch
+                }
+                catch
                 {
                     await transaction.RollbackAsync();
                     throw;
@@ -164,11 +167,11 @@ namespace ApiDeFilasDeAtendimento.Services
         {
             return await _context.Set<FilaSenha>()
                 .Where(s => s.UnidadeId == unidadeId && s.StatusSenha == StatusSenha.CHAMADA)
+                .Include(s => s.Guiche)
                 .OrderByDescending(s => s.DataChamada)
                 .Take(5)
                 .ToListAsync();
         }
-
         private async Task NotificarAtualizacaoFila(Guid unidadeId)
         {
             var waitingNormal = await _context.Set<FilaSenha>()

@@ -3,6 +3,7 @@ using System;
 using ApiDeFilasDeAtendimento.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ApiDeFilasDeAtendimento.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260106195725_adicioneiPropriedadeDeGuiche")]
+    partial class adicioneiPropriedadeDeGuiche
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -340,7 +343,7 @@ namespace ApiDeFilasDeAtendimento.Migrations
             modelBuilder.Entity("ApiDeFilasDeAtendimento.Models.FilaSenha", b =>
                 {
                     b.HasOne("ApiDeFilasDeAtendimento.Models.Guiche", "Guiche")
-                        .WithMany()
+                        .WithMany("Senhas")
                         .HasForeignKey("GuicheId");
 
                     b.HasOne("ApiDeFilasDeAtendimento.Models.Unidade", null)
@@ -420,6 +423,11 @@ namespace ApiDeFilasDeAtendimento.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("ApiDeFilasDeAtendimento.Models.Guiche", b =>
+                {
+                    b.Navigation("Senhas");
                 });
 
             modelBuilder.Entity("ApiDeFilasDeAtendimento.Models.Unidade", b =>

@@ -17,7 +17,7 @@ namespace ApiDeFilasDeAtendimento.Models
 
         [StringLength(10)]
         public string SenhaFormatada => $"{(Prioritario ? "P" : "N")}{Numero:D3}";
-
+        public Guiche Guiche { get; set; }
         public int? GuicheId { get; set; }
         public Guid UnidadeId {  get; set; }
 
