@@ -22,7 +22,7 @@ builder.Services.ConfigureApplicationCookie(options =>
 {
     options.Cookie.Name = "FilaAuth";
     options.Cookie.HttpOnly = true;
-    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
     options.Cookie.SameSite = SameSiteMode.None;
 
     options.ExpireTimeSpan = TimeSpan.FromDays(30);
