@@ -8,6 +8,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using System.Data;
 
 namespace ApiDeFilasDeAtendimento.Services
 {
@@ -53,36 +54,63 @@ namespace ApiDeFilasDeAtendimento.Services
         }
         public async Task<List<FilaSenha>> GetAguardando()
         {
-            return await _context.Set<FilaSenha>().Where(s => s.StatusSenha == StatusSenha.AGUARDANDO).OrderBy(s => s.Prioritario ? 0 : 1).ThenBy(s => s.DataCriacao).ToListAsync();
+            var userLogado = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext!.User);
+
+            return await _context.Set<FilaSenha>()
+                .Where(s => s.StatusSenha == StatusSenha.AGUARDANDO && s.TipoAtendimento == userLogado!.Atendimento)
+                .OrderBy(s => s.Prioritario ? 0 : 1)
+                .ThenBy(s => s.DataCriacao)
+                .ToListAsync();
         }
         public async Task<FilaSenha> UpdateStatusForCall(SenhaDtoUpdateStatusForCall dados)
         {
-            var userLogado = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext!.User);
-            var guiche = await _context.Guiche
-            .Where(g => g.FuncionarioId == userLogado.Id)
-            .Select(g => new { g.Id }) // só o que interessa
-            .FirstOrDefaultAsync()
-            ?? throw new Exception("Guichê não encontrado para este usuário");
-            // Assumindo que o Guid Id vem dentro do DTO
-            var senha = await _context.Set<FilaSenha>().FindAsync(dados.Id)
-                        ?? throw new Exception("Senha não encontrada.");
+            var strategy = _context.Database.CreateExecutionStrategy();
+            return await strategy.ExecuteAsync(async () =>
+            {
+                await using var transaction = await _context.Database.BeginTransactionAsync(IsolationLevel.Serializable);
+                try
+                {
+                    var userLogado = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext!.User);
+                    var guiche = await _context.Guiche
+                    .Where(g => g.FuncionarioId == userLogado.Id)
+                    .Select(g => new { g.Id })
+                    .FirstOrDefaultAsync()
+                    ?? throw new Exception("Guichê não encontrado para o usuário");
 
-            _mapper.Map(dados, senha);
+                    var senha = await _context.Set<FilaSenha>()
+                    .AsNoTracking()
+                    .Where(s => s.TipoAtendimento == userLogado.Atendimento)
+                    .FirstOrDefaultAsync(s => s.Id == dados.Id)
+                    ?? throw new Exception("Esta senha não existe");
+                    if(senha.StatusSenha == StatusSenha.CHAMADA && (DateTime.UtcNow - senha.DataChamada.Value).TotalSeconds < 30)
+                    {
+                        throw new Exception("Esta senha já foi chamada recentemente");
+                    }
+                    var rowsAffected = await _context.Set<FilaSenha>().Where(s => s.Id == dados.Id)
+                    .Where(s => s.QuantidadeDeChamadas == senha.QuantidadeDeChamadas)
+                    .ExecuteUpdateAsync(setters => setters
+                    .SetProperty(s => s.StatusSenha, StatusSenha.CHAMADA)
+                    .SetProperty(s => s.DataChamada, DateTime.UtcNow)
+                    .SetProperty(s => s.QuantidadeDeChamadas, senha.QuantidadeDeChamadas + 1)
+                    .SetProperty(s => s.GuicheId, guiche.Id)
+                    );
 
-            senha.StatusSenha = StatusSenha.CHAMADA;
-            senha.DataChamada = DateTime.UtcNow;
-            senha.QuantidadeDeChamadas++;
-            senha.GuicheId = guiche.Id;
-
-            await _context.SaveChangesAsync();
-
-            // Preparar dados para o seu Hub (TicketCalled)
-            var ultimasChamadas = await GetUltimasChamadas(senha.UnidadeId);
-
-            // Disparar o método que você criou no QueueHub
-            await _hubContext.Clients.All.SendAsync("TicketCalled", senha, ultimasChamadas);
-
-            return senha;
+                    if (rowsAffected == 0)
+                    {
+                        throw new DbUpdateConcurrencyException(
+                            "A senha foi modificada por outro usuário. Tente novamente.");
+                    }
+                    await transaction.CommitAsync();
+                    var senhaAtualizada = await _context.Set<FilaSenha>().FindAsync(dados.Id);
+                    var ultimasChamadas = await GetUltimasChamadas(senhaAtualizada!.UnidadeId);
+                    await _hubContext.Clients.All.SendAsync("TicketCalled", senhaAtualizada, ultimasChamadas);
+                    return senhaAtualizada;
+                } catch
+                {
+                    await transaction.RollbackAsync();
+                    throw;
+                }
+            });
         }
 
         public async Task<FilaSenha> UpdateStatusForAtendimento(SenhaDtoUpdateStatusForAtendimento dados)
