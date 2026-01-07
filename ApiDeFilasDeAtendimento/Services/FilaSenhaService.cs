@@ -49,6 +49,7 @@ namespace ApiDeFilasDeAtendimento.Services
             await _context.SaveChangesAsync();
 
             await NotificarAtualizacaoFila(novaSenha.UnidadeId);
+            await _hubContext.Clients.All.SendAsync("TicketCreated", novaSenha);
 
             return novaSenha;
         }
@@ -106,7 +107,6 @@ namespace ApiDeFilasDeAtendimento.Services
                     .FirstOrDefaultAsync(s => s.Id == dados.Id);
                     var ultimasChamadas = await GetUltimasChamadas(senhaAtualizada!.UnidadeId);
                     await _hubContext.Clients.All.SendAsync("TicketCalled", senhaAtualizada, ultimasChamadas);
-                    await _hubContext.Clients.All.SendAsync("TicketCreated", senhaAtualizada);
                     return senhaAtualizada;
                 }
                 catch
