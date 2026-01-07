@@ -4,6 +4,7 @@
     {
         CADASTRO_UNICO,
         BOLSA_FAMILIA,
-        SERVICO_SOCIAL
+        SERVICO_SOCIAL,
+        CONDICIONALIDADES_DE_SAUDE
     }
 }

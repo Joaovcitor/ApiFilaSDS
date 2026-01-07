@@ -21,6 +21,10 @@ namespace ApiDeFilasDeAtendimento.Hubs
                 waitingPriority
             });
         }
+        public async Task TicketCreated(FilaSenha ticket)
+        {
+            await Clients.All.SendAsync("TicketCreated", ticket);
+        }
     }
 
 }

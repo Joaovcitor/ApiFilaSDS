@@ -106,6 +106,7 @@ namespace ApiDeFilasDeAtendimento.Services
                     .FirstOrDefaultAsync(s => s.Id == dados.Id);
                     var ultimasChamadas = await GetUltimasChamadas(senhaAtualizada!.UnidadeId);
                     await _hubContext.Clients.All.SendAsync("TicketCalled", senhaAtualizada, ultimasChamadas);
+                    await _hubContext.Clients.All.SendAsync("TicketCreated", senhaAtualizada);
                     return senhaAtualizada;
                 }
                 catch
@@ -123,7 +124,6 @@ namespace ApiDeFilasDeAtendimento.Services
 
             _mapper.Map(dados, senha);
             senha.StatusSenha = StatusSenha.EM_ATENDIMENTO;
-            // Aqui você pode registrar o início real do atendimento se tiver o campo
 
             await _context.SaveChangesAsync();
             return senha;
@@ -162,7 +162,6 @@ namespace ApiDeFilasDeAtendimento.Services
             return senha;
         }
 
-        // Métodos auxiliares para manter o código limpo
         private async Task<List<FilaSenha>> GetUltimasChamadas(Guid unidadeId)
         {
             return await _context.Set<FilaSenha>()

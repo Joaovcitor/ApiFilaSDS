@@ -33,6 +33,16 @@ namespace ApiDeFilasDeAtendimento.Controllers
 
             return CreatedAtAction(nameof(Post), unidade);
         }
+        [HttpGet]
+        public async Task<IActionResult> GetUnidades()
+        {
+            var unidades = await _context.Unidade
+                .AsNoTracking()
+                .Include(u => u.ApplicationUsers)
+                .ToListAsync();
+
+            return Ok(unidades);
+        }
         [HttpGet("meu-guiche")]
         public async Task<IActionResult> GetGuicheUsuarioLogado()
         {

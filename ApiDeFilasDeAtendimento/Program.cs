@@ -58,7 +58,9 @@ builder.Services.AddSignalR().AddJsonProtocol(options =>
 {
     options.PayloadSerializerOptions.Converters.Add(new JsonStringEnumConverter());
 });
+// Registro de Services
 builder.Services.AddScoped<IFilaSenhaService, FilaSenhaService>();
+builder.Services.AddScoped<IGuicheService, GuicheService>();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("MinhasPoliticas", policy =>
