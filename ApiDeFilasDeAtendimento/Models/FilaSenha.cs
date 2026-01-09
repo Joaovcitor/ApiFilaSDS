@@ -28,6 +28,7 @@ namespace ApiDeFilasDeAtendimento.Models
 
         [StringLength(255)]
         public string? FuncionarioNome { get; set; }
+        public string? FuncionarioId {  get; set; }
 
         [StringLength(500)]
         public string? MotivoAtendimento { get; set; }

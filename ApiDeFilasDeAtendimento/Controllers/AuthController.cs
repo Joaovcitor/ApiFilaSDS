@@ -38,6 +38,7 @@ namespace ApiDeFilasDeAtendimento.Controllers
                     userName = user.UserName,
                     Email = user.Email,
                     LocalId = user.LocalId,
+                    TipoAtendimento = user.Atendimento
                 });
             }
             if (result.IsLockedOut)

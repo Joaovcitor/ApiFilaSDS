@@ -38,7 +38,7 @@ namespace ApiDeFilasDeAtendimento.Controllers
         {
             var unidades = await _context.Unidade
                 .AsNoTracking()
-                .Include(u => u.ApplicationUsers)
+                .Include(u => u.FilasSenhas)
                 .ToListAsync();
 
             return Ok(unidades);

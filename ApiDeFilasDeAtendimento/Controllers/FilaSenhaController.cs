@@ -7,7 +7,7 @@ namespace ApiDeFilasDeAtendimento.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize] // Garante que apenas usuários autenticados via Cookie acessem
+    [Authorize]
     public class FilaSenhaController : ControllerBase
     {
         private readonly IFilaSenhaService _filaService;
@@ -18,7 +18,6 @@ namespace ApiDeFilasDeAtendimento.Controllers
         }
 
         [HttpPost("gerar-senha")]
-        [AllowAnonymous]
         public async Task<IActionResult> Criar([FromBody] SenhaDtoCreate dados)
         {
             var senha = await _filaService.CreateSenha(dados);
@@ -79,6 +78,12 @@ namespace ApiDeFilasDeAtendimento.Controllers
         {
             var senha = await _filaService.UpdateNameEmployee(dados);
             return Ok(senha);
+        }
+        [HttpGet("senhas-do-funcionario")]
+        public async Task<IActionResult> SenhasDoFuncionario()
+        {
+            var quantidadeDeSenhas = await _filaService.GetSenhasAtendidasPeloUsuario();
+            return Ok(quantidadeDeSenhas);
         }
     }
 }

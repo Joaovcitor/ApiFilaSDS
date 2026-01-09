@@ -12,5 +12,6 @@ namespace ApiDeFilasDeAtendimento.Interfaces
         Task<FilaSenha> UpdateNameEmployee(SenhaDtoUpdateNameEmployee dados);
         Task<FilaSenha> UpdateMotivoAtendimento(SenhaDtoUpdateMotivoAtendimento dados);
         Task<List<FilaSenha>> GetAguardando();
+        Task<List<FilaSenha>> GetSenhasAtendidasPeloUsuario();
     }
 }

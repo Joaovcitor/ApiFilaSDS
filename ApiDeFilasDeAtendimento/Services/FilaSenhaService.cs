@@ -58,7 +58,7 @@ namespace ApiDeFilasDeAtendimento.Services
             var userLogado = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext!.User);
 
             return await _context.Set<FilaSenha>()
-                .Where(s => s.StatusSenha == StatusSenha.AGUARDANDO && s.TipoAtendimento == userLogado!.Atendimento)
+                .Where(s => s.StatusSenha == StatusSenha.AGUARDANDO && s.TipoAtendimento == userLogado!.Atendimento && s.UnidadeId == userLogado.LocalId)
                 .OrderBy(s => s.Prioritario ? 0 : 1)
                 .ThenBy(s => s.DataCriacao)
                 .ToListAsync();
@@ -94,6 +94,7 @@ namespace ApiDeFilasDeAtendimento.Services
                     .SetProperty(s => s.DataChamada, DateTime.UtcNow)
                     .SetProperty(s => s.QuantidadeDeChamadas, senha.QuantidadeDeChamadas + 1)
                     .SetProperty(s => s.GuicheId, guiche.Id)
+                    .SetProperty(s => s.FuncionarioId, userLogado!.Id)
                     );
 
                     if (rowsAffected == 0)
@@ -180,6 +181,17 @@ namespace ApiDeFilasDeAtendimento.Services
                 .CountAsync(s => s.UnidadeId == unidadeId && s.StatusSenha == StatusSenha.AGUARDANDO && s.Prioritario);
 
             await _hubContext.Clients.All.SendAsync("QueueUpdated", waitingNormal, waitingPriority);
+        }
+
+        public async Task<List<FilaSenha>> GetSenhasAtendidasPeloUsuario()
+        {
+            var userLogado = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext!.User);
+            var dataHoje = DateTime.UtcNow;
+            var senhas = _context.FilaSenha.Include(s => s.Guiche);
+            var senhasUser = await senhas.AsNoTracking()
+                .Where(s => s.FuncionarioNome == userLogado!.UserName && s.DataCriacao == dataHoje)
+                .ToListAsync();
+            return senhasUser;
         }
     }
 }
