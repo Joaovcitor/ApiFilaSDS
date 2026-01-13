@@ -1,5 +1,6 @@
 ﻿using ApiDeFilasDeAtendimento.DTOs.Auth;
 using ApiDeFilasDeAtendimento.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -49,10 +50,12 @@ namespace ApiDeFilasDeAtendimento.Controllers
             return Unauthorized(new { Message = "Email ou senha inválidos" });
         }
         [HttpPost]
+        [Authorize]
         [Route("register")]
         public async Task<IActionResult> Register([FromBody] RegisterModelDto model)
         {
             var userExist = await _userManager.FindByEmailAsync(model.Email!);
+            var userLogado = await _userManager.GetUserAsync(User);
             if (userExist is not null)
             {
                 return BadRequest("Usuário existe!");
@@ -62,7 +65,9 @@ namespace ApiDeFilasDeAtendimento.Controllers
                 Email = model.Email,
                 UserName = model.UserName,
                 SecurityStamp = Guid.NewGuid().ToString(),
-                LocalId = model.LocalId
+                LocalId = model.LocalId,
+                DonoId = userLogado!.Id,
+                NomeCompleto = model.NomeCompleto
             };
             var result = await _userManager.CreateAsync(user, model.Password!);
             if(!result.Succeeded)

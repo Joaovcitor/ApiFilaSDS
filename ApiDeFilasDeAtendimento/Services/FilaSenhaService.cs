@@ -49,7 +49,7 @@ namespace ApiDeFilasDeAtendimento.Services
             await _context.SaveChangesAsync();
 
             await NotificarAtualizacaoFila(novaSenha.UnidadeId);
-            await _hubContext.Clients.All.SendAsync("TicketCreated", novaSenha);
+            await _hubContext.Clients.Group($"unidade-{novaSenha.UnidadeId}").SendAsync("TicketCreated", novaSenha);
 
             return novaSenha;
         }
@@ -95,6 +95,7 @@ namespace ApiDeFilasDeAtendimento.Services
                     .SetProperty(s => s.QuantidadeDeChamadas, senha.QuantidadeDeChamadas + 1)
                     .SetProperty(s => s.GuicheId, guiche.Id)
                     .SetProperty(s => s.FuncionarioId, userLogado!.Id)
+                    .SetProperty(s => s.FuncionarioNome, userLogado.UserName)
                     );
 
                     if (rowsAffected == 0)
@@ -107,7 +108,7 @@ namespace ApiDeFilasDeAtendimento.Services
                     .Include(s => s.Guiche)
                     .FirstOrDefaultAsync(s => s.Id == dados.Id);
                     var ultimasChamadas = await GetUltimasChamadas(senhaAtualizada!.UnidadeId);
-                    await _hubContext.Clients.All.SendAsync("TicketCalled", senhaAtualizada, ultimasChamadas);
+                    await _hubContext.Clients.Group($"unidade-{senhaAtualizada.UnidadeId}").SendAsync("TicketCalled", senhaAtualizada, ultimasChamadas);
                     return senhaAtualizada;
                 }
                 catch
@@ -180,16 +181,18 @@ namespace ApiDeFilasDeAtendimento.Services
             var waitingPriority = await _context.Set<FilaSenha>()
                 .CountAsync(s => s.UnidadeId == unidadeId && s.StatusSenha == StatusSenha.AGUARDANDO && s.Prioritario);
 
-            await _hubContext.Clients.All.SendAsync("QueueUpdated", waitingNormal, waitingPriority);
+            await _hubContext.Clients.Group($"unidade-{unidadeId}").SendAsync("QueueUpdated", waitingNormal, waitingPriority);
         }
 
         public async Task<List<FilaSenha>> GetSenhasAtendidasPeloUsuario()
         {
             var userLogado = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext!.User);
-            var dataHoje = DateTime.UtcNow;
+            var guicheDoUsuario = await _context.Guiche.FirstOrDefaultAsync(g => g.FuncionarioId == userLogado.Id);
+            var dataHoje = DateTime.UtcNow.Date;
+            var amanha = dataHoje.AddDays(1);
             var senhas = _context.FilaSenha.Include(s => s.Guiche);
             var senhasUser = await senhas.AsNoTracking()
-                .Where(s => s.FuncionarioNome == userLogado!.UserName && s.DataCriacao == dataHoje)
+                .Where(s => s.GuicheId == guicheDoUsuario!.Id && s.DataCriacao >= dataHoje && s.DataCriacao < amanha)
                 .ToListAsync();
             return senhasUser;
         }

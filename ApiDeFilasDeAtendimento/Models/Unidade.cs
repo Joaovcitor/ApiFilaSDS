@@ -12,6 +12,8 @@ namespace ApiDeFilasDeAtendimento.Models
         public ICollection<ApplicationUser> ApplicationUsers { get; set; } = [];
         public ICollection<Guiche> Guiches { get; set; } = [];
         public ICollection<FilaSenha> FilasSenhas { get; set; } = [];
+        public ApplicationUser? Dono { get; set; }
+        public string? DonoId { get; set; }
 
     }
 }

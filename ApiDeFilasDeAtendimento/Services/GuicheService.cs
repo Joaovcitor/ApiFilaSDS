@@ -1,5 +1,6 @@
 ﻿using ApiDeFilasDeAtendimento.Context;
 using ApiDeFilasDeAtendimento.DTOs.Guiches;
+using ApiDeFilasDeAtendimento.Exceptions;
 using ApiDeFilasDeAtendimento.Interfaces;
 using ApiDeFilasDeAtendimento.Models;
 using AutoMapper;
@@ -28,16 +29,34 @@ namespace ApiDeFilasDeAtendimento.Services
         public async Task<Guiche> CreateGuiche(GuicheCreateDto dados)
         {
             var guiche = _mapper.Map<Guiche>(dados);
+            var usuarioLogado = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
+            if(usuarioLogado is null)
+            {
+                throw new UnauthorizedAccessException("Você deve estar logado para acessar esse recurso");
+            }
+            guiche.DonoId = usuarioLogado.Id;
+            var unidadeExiste = await _context.Unidade.FirstOrDefaultAsync(u => u.Id == dados.UnidadeId);
+            if(unidadeExiste is null)
+            {
+                throw new NotFoundException("Unidade não encontrada");
+            }
             _context.Set<Guiche>().Add(guiche);
             await _context.SaveChangesAsync();
             return guiche;
+        }
+
+        public async Task<List<Guiche>> GetAllAsync()
+        {
+            var userLogado = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext!.User);
+            var guiches = await _context.Guiche.AsNoTracking().Where(g => g.DonoId == userLogado.Id).ToListAsync();
+            return guiches;
         }
 
         public async Task<Guiche> GuicheDoUsuario()
         {
             var userLogado = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext!.User);
             var guiche = await _context.Guiche.FirstOrDefaultAsync(g => g.FuncionarioId == userLogado.Id);
-            
+
             return guiche;
         }
     }

@@ -6,6 +6,7 @@ namespace ApiDeFilasDeAtendimento.Interfaces
     public interface IGuicheService
     {
         Task<Guiche> CreateGuiche(GuicheCreateDto dados);
+        Task<List<Guiche>> GetAllAsync();
         Task<Guiche> GuicheDoUsuario();
     }
 }

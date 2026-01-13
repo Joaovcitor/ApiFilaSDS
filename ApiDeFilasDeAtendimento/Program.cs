@@ -1,4 +1,5 @@
 using ApiDeFilasDeAtendimento.Context;
+using ApiDeFilasDeAtendimento.Handlers;
 using ApiDeFilasDeAtendimento.Hubs;
 using ApiDeFilasDeAtendimento.Interfaces;
 using ApiDeFilasDeAtendimento.Models;
@@ -61,6 +62,8 @@ builder.Services.AddSignalR().AddJsonProtocol(options =>
 // Registro de Services
 builder.Services.AddScoped<IFilaSenhaService, FilaSenhaService>();
 builder.Services.AddScoped<IGuicheService, GuicheService>();
+builder.Services.AddScoped<IReportService, ReportService>();
+builder.Services.AddScoped<IUnidadeService, UnidadeService>();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("MinhasPoliticas", policy =>
@@ -73,6 +76,8 @@ builder.Services.AddCors(options =>
     });
 });
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
 var app = builder.Build();
 
 app.UseCors("MinhasPoliticas");

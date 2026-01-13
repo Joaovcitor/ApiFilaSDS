@@ -14,5 +14,7 @@ namespace ApiDeFilasDeAtendimento.Models
         public string FuncionarioId { get; set; }
         public Unidade Unidade { get; set; }
         public Guid UnidadeId {  get; set; }
+        public ApplicationUser? Dono { get; set; }
+        public string? DonoId { get; set; }
     }
 }

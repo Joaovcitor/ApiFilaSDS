@@ -29,6 +29,12 @@ namespace ApiDeFilasDeAtendimento.Controllers
             var guiche = await _guicheService.CreateGuiche(dados);
             return Ok();
         }
+        [HttpGet]
+        public async Task<IActionResult> GetAll()
+        {
+            var guiches = await _guicheService.GetAllAsync();
+            return Ok(guiches);
+        }
         [HttpGet("guiche-usuario")]
         public async Task<IActionResult> GetGuicheUsuario()
         {

@@ -7,5 +7,7 @@ namespace ApiDeFilasDeAtendimento.DTOs.Guiches
         public required string Nome { get; set; }
         public string FuncionarioId { get; set; }
         public Guid UnidadeId { get; set; }
+        public string? DonoId { get; set; }
+
     }
 }

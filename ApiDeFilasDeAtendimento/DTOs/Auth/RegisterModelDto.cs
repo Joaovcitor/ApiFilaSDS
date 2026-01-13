@@ -12,5 +12,7 @@ namespace ApiDeFilasDeAtendimento.DTOs.Auth
         public string? Password { get; set; }
 
         public Guid LocalId { get; set; }
+        public required string DonoId { get; set; }
+        public string NomeCompleto { get; set; }
     }
 }

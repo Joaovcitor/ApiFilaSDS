@@ -3,6 +3,7 @@ using System;
 using ApiDeFilasDeAtendimento.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ApiDeFilasDeAtendimento.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260113183023_AddModelDeRelacionamento")]
+    partial class AddModelDeRelacionamento
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -37,9 +40,6 @@ namespace ApiDeFilasDeAtendimento.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("text");
 
-                    b.Property<string>("DonoId")
-                        .HasColumnType("text");
-
                     b.Property<string>("Email")
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)");
@@ -55,10 +55,6 @@ namespace ApiDeFilasDeAtendimento.Migrations
 
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("NomeCompleto")
-                        .IsRequired()
-                        .HasColumnType("text");
 
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
@@ -88,8 +84,6 @@ namespace ApiDeFilasDeAtendimento.Migrations
                         .HasColumnType("character varying(256)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("DonoId");
 
                     b.HasIndex("LocalId");
 
@@ -351,17 +345,11 @@ namespace ApiDeFilasDeAtendimento.Migrations
 
             modelBuilder.Entity("ApiDeFilasDeAtendimento.Models.ApplicationUser", b =>
                 {
-                    b.HasOne("ApiDeFilasDeAtendimento.Models.ApplicationUser", "Dono")
-                        .WithMany()
-                        .HasForeignKey("DonoId");
-
                     b.HasOne("ApiDeFilasDeAtendimento.Models.Unidade", "Local")
                         .WithMany("ApplicationUsers")
                         .HasForeignKey("LocalId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.Navigation("Dono");
 
                     b.Navigation("Local");
                 });

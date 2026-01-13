@@ -7,12 +7,17 @@ namespace ApiDeFilasDeAtendimento.Context
     public class AppDbContext : IdentityDbContext<ApplicationUser>
     {
         public AppDbContext(DbContextOptions options) : base(options) { }
-        public DbSet<FilaSenha> FilaSenha {  get; set; }
+        public DbSet<FilaSenha> FilaSenha { get; set; }
         public DbSet<Unidade> Unidade { get; set; }
         public DbSet<Guiche> Guiche { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
+            builder.Entity<ApplicationUser>()
+            .HasOne(u => u.Local)
+            .WithMany(u => u.ApplicationUsers)
+            .HasForeignKey(u => u.LocalId)
+            .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

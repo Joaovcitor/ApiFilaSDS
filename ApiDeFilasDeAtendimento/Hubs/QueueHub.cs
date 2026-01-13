@@ -4,26 +4,38 @@ namespace ApiDeFilasDeAtendimento.Hubs
 {
     public class QueueHub : Hub
     {
-        public async Task TicketCalled(FilaSenha ticket, List<FilaSenha> lastCalled)
+        public async Task TicketCalled(Guid unidadeId, FilaSenha ticket, List<FilaSenha> lastCalled)
         {
-            await Clients.All.SendAsync("TicketCalled", new
+            await Clients.Group($"unidade-{unidadeId}")
+                .SendAsync("TicketCalled", new
             {
                 currentTicket = ticket,
                 lastCalledTickets = lastCalled
             });
         }
 
-        public async Task QueueUpdated(int waitingNormal, int waitingPriority)
+        public async Task QueueUpdated(Guid unidadeId, int waitingNormal, int waitingPriority)
         {
-            await Clients.All.SendAsync("QueueUpdated", new
+            await Clients.Group($"unidade-{unidadeId}").SendAsync("QueueUpdated", new
             {
                 waitingNormal,
                 waitingPriority
             });
         }
-        public async Task TicketCreated(FilaSenha ticket)
+        public async Task TicketCreated(Guid unidadeId, FilaSenha ticket)
         {
-            await Clients.All.SendAsync("TicketCreated", ticket);
+            await Clients.Group($"unidade-{unidadeId}").SendAsync("TicketCreated", ticket);
+        }
+
+        public async Task JoinUnit(Guid unidadeId)
+        {
+            var groupName = $"unidade-{unidadeId}";
+            await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
+        }
+        public async Task LeaveUnit(Guid unidadeId)
+        {
+            var groupName = $"unidade-{unidadeId}";
+            await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupName);
         }
     }
 
