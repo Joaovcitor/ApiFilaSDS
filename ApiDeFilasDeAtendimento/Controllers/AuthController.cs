@@ -1,9 +1,11 @@
 ﻿using ApiDeFilasDeAtendimento.DTOs.Auth;
+using ApiDeFilasDeAtendimento.Interfaces;
 using ApiDeFilasDeAtendimento.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace ApiDeFilasDeAtendimento.Controllers
 {
@@ -11,71 +13,34 @@ namespace ApiDeFilasDeAtendimento.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
-        private readonly UserManager<ApplicationUser> _userManager;
-        private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly IAuthService _authService;
 
-        public AuthController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)
+        public AuthController(IAuthService authService)
         {
-            _userManager = userManager;
-            _signInManager = signInManager;
+            _authService = authService;
         }
         [HttpPost]
         [Route("login")]
         public async Task<IActionResult> Login([FromBody] LoginModelDto loginModel)
         {
-            var user = await _userManager.FindByEmailAsync(loginModel.Email!);
-            if(user == null)
-            {
-                return Unauthorized("Credenciais invalidas!");
-
-            }
-            var result = await _signInManager.PasswordSignInAsync(user, loginModel.Password!, isPersistent: true, lockoutOnFailure: false);
-            if(result.Succeeded)
-            {
-                return Ok(new
-                {
-                    Message = "Login realizado com sucesso!",
-                    UserId = user.Id,
-                    userName = user.UserName,
-                    Email = user.Email,
-                    LocalId = user.LocalId,
-                    TipoAtendimento = user.Atendimento
-                });
-            }
-            if (result.IsLockedOut)
-            {
-                return BadRequest(new { Message = "Conta bloqueada temporariamente" });
-            }
-
-            return Unauthorized(new { Message = "Email ou senha inválidos" });
+            var user = await _authService.Login(loginModel);
+            return Ok(user);
         }
+        //[HttpPost]
+        //[Authorize]
+        //[Route("register")]
+        //public async Task<IActionResult> Register([FromBody] RegisterModelDto model, string roleSolicitada)
+        //{
+        //    var adminId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? throw new UnauthorizedAccessException("Você deve fazer login!");
+        //    await _authService.RegistrarUsuario(model, roleSolicitada, adminId!);
+        //    return Ok(new { Message = "Funcionário cadastrado com sucesso" });
+        //}
         [HttpPost]
         [Authorize]
-        [Route("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterModelDto model)
+        public async Task<IActionResult> Logout()
         {
-            var userExist = await _userManager.FindByEmailAsync(model.Email!);
-            var userLogado = await _userManager.GetUserAsync(User);
-            if (userExist is not null)
-            {
-                return BadRequest("Usuário existe!");
-            }
-            ApplicationUser user = new()
-            {
-                Email = model.Email,
-                UserName = model.UserName,
-                SecurityStamp = Guid.NewGuid().ToString(),
-                LocalId = model.LocalId,
-                DonoId = userLogado!.Id,
-                NomeCompleto = model.NomeCompleto
-            };
-            var result = await _userManager.CreateAsync(user, model.Password!);
-            if(!result.Succeeded)
-            {
-                var errors = result.Errors.Select(e => e.Description);
-                return BadRequest("Ocorreu um erro ao criar o usuário!");
-            }
-            return Ok();
+            await _authService.Logout();
+            return Ok(new { Message = "Você encerrou sua sessão com sucesso!" });
         }
     }
 }

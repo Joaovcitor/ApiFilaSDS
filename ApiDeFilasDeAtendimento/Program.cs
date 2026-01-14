@@ -17,6 +17,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddIdentityApiEndpoints<ApplicationUser>()
+    .AddRoles<ApplicationRole>()
     .AddEntityFrameworkStores<AppDbContext>();
 
 builder.Services.ConfigureApplicationCookie(options =>
@@ -64,6 +65,8 @@ builder.Services.AddScoped<IFilaSenhaService, FilaSenhaService>();
 builder.Services.AddScoped<IGuicheService, GuicheService>();
 builder.Services.AddScoped<IReportService, ReportService>();
 builder.Services.AddScoped<IUnidadeService, UnidadeService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IManagementService, ManagementService>();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("MinhasPoliticas", policy =>
@@ -78,9 +81,32 @@ builder.Services.AddCors(options =>
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
+// service de roles
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AcessoAdmin", policy => policy.RequireRole("Admin"));
+    options.AddPolicy("AcessoOperacional", policy => policy.RequireRole("Atendente"));
+    options.AddPolicy("AcessoTotem", policy => policy.RequireRole("Totem"));
+});
 var app = builder.Build();
 
+using (var scope = app.Services.CreateScope())
+{
+    var rolesManager = scope.ServiceProvider.GetRequiredService<RoleManager<ApplicationRole>>();
+    var roles = new[] { "Admin", "Atendente", "Totem", "SuperAdmin" };
+    foreach (var role in roles)
+    {
+        if (!await rolesManager.RoleExistsAsync(role))
+        {
+            await rolesManager.CreateAsync(new ApplicationRole(role));
+        }
+    }
+}
+
+app.UseExceptionHandler();
+
 app.UseCors("MinhasPoliticas");
+
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
@@ -88,12 +114,10 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapIdentityApi<ApplicationUser>();
-
 app.MapControllers();
 app.MapHub<QueueHub>("/hubs/queue");
 

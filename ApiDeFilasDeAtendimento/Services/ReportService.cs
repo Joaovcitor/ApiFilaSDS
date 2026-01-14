@@ -1,6 +1,7 @@
 ﻿using ApiDeFilasDeAtendimento.Context;
 using ApiDeFilasDeAtendimento.DTOs.Filters;
 using ApiDeFilasDeAtendimento.DTOs.Pagination;
+using ApiDeFilasDeAtendimento.Exceptions;
 using ApiDeFilasDeAtendimento.Interfaces;
 using ApiDeFilasDeAtendimento.Models;
 using Microsoft.AspNetCore.Identity;
@@ -23,9 +24,11 @@ namespace ApiDeFilasDeAtendimento.Services
 
         public async Task<PagedResult<FilaSenha>> SenhasDoUsuario(ReportFilter filtro)
         {
-            var userLogado = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext!.User);
-            var guiche = await _context.Guiche.FirstOrDefaultAsync(g => g.FuncionarioId == userLogado!.Id);
-            var query = _context.FilaSenha.AsQueryable();
+            var userLogado = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext!.User)
+                ?? throw new UnauthorizedAccessException("Você deve fazer login");
+            var guiche = await _context.Guiche.FirstOrDefaultAsync(g => g.FuncionarioId == userLogado!.Id)
+                ?? throw new NotFoundException("GUicê não encontrado!");
+            var query = _context.FilaSenha.Where(s => s.GuicheId == guiche.Id).AsQueryable();
             if (filtro.DataInicio.HasValue)
             {
                 query = query.Where(x => x.DataCriacao >= filtro.DataInicio.Value);
@@ -34,7 +37,7 @@ namespace ApiDeFilasDeAtendimento.Services
             {
                 query = query.Where(x => x.DataCriacao <= filtro.DataFim.Value);
             }
-            var totalRegistros = query.Count();
+            var totalRegistros = await query.CountAsync();
             var itens = await query.Where(x => x.GuicheId == guiche.Id)
                 .OrderByDescending(x => x.DataCriacao)
                 .Skip((filtro.Page - 1) * filtro.PageSize)
@@ -65,7 +68,7 @@ namespace ApiDeFilasDeAtendimento.Services
             {
                 senhas = senhas.Where(x => x.UnidadeId == filtro.UnidadeId.Value);
             }
-            if(!string.IsNullOrWhiteSpace(filtro.UsuarioId))
+            if (!string.IsNullOrWhiteSpace(filtro.UsuarioId))
             {
                 senhas = senhas.Where(x => x.FuncionarioId == filtro.UsuarioId);
             }

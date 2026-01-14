@@ -14,4 +14,5 @@ public class SenhaDtoCreate
 
     [Required]
     public Guid UnidadeId { get; set; }
+    public string? Cpf {  get; set; }
 }

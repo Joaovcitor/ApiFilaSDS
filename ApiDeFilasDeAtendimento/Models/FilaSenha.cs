@@ -40,6 +40,8 @@ namespace ApiDeFilasDeAtendimento.Models
         public DateTime DataCriacao { get; set; } = DateTime.UtcNow;
         public DateTime? DataChamada { get; set; }
         public DateTime? DataFinalizacao { get; set; }
+        [StringLength(11)]
+        public string? Cpf {  get; set; }
 
         [NotMapped]
         public TimeSpan? TempoAtendimento =>
