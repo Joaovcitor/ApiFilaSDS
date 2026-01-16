@@ -84,16 +84,18 @@ builder.Services.AddProblemDetails();
 // service de roles
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("AcessoAdmin", policy => policy.RequireRole("Admin"));
+    options.AddPolicy("AcessoAdmin", policy => policy.RequireRole("Admin", "SuperAdmin"));
     options.AddPolicy("AcessoOperacional", policy => policy.RequireRole("Atendente"));
     options.AddPolicy("AcessoTotem", policy => policy.RequireRole("Totem"));
+    options.AddPolicy("AcessoSuperAdmin", policy => policy.RequireRole("SuperAdmin"));
+    options.AddPolicy("AcessoTv", policy => policy.RequireRole("Tv"));
 });
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
     var rolesManager = scope.ServiceProvider.GetRequiredService<RoleManager<ApplicationRole>>();
-    var roles = new[] { "Admin", "Atendente", "Totem", "SuperAdmin" };
+    var roles = new[] { "Admin", "Atendente", "Totem", "SuperAdmin", "Tv" };
     foreach (var role in roles)
     {
         if (!await rolesManager.RoleExistsAsync(role))

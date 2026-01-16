@@ -26,16 +26,7 @@ namespace ApiDeFilasDeAtendimento.Controllers
             var user = await _authService.Login(loginModel);
             return Ok(user);
         }
-        //[HttpPost]
-        //[Authorize]
-        //[Route("register")]
-        //public async Task<IActionResult> Register([FromBody] RegisterModelDto model, string roleSolicitada)
-        //{
-        //    var adminId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? throw new UnauthorizedAccessException("Você deve fazer login!");
-        //    await _authService.RegistrarUsuario(model, roleSolicitada, adminId!);
-        //    return Ok(new { Message = "Funcionário cadastrado com sucesso" });
-        //}
-        [HttpPost]
+        [HttpPost("logout")]
         [Authorize]
         public async Task<IActionResult> Logout()
         {

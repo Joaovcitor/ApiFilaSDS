@@ -41,32 +41,5 @@ namespace ApiDeFilasDeAtendimento.Services
         {
             await _signInManager.SignOutAsync();
         }
-        // Depois vou remover por completo
-        //public async Task RegistrarUsuario(RegisterModelDto model, string roleSolicitada, string adminId)
-        //{
-        //    var userExist = await _userManager.FindByEmailAsync(model.Email!);
-        //    if (userExist is not null)
-        //        throw new ConflictException("Este e-mail já está cadastrado.");
-
-        //    var user = new ApplicationUser
-        //    {
-        //        Email = model.Email,
-        //        UserName = model.UserName,
-        //        LocalId = model.LocalId,
-        //        DonoId = adminId,
-        //        NomeCompleto = model.NomeCompleto,
-        //        SecurityStamp = Guid.NewGuid().ToString()
-        //    };
-
-        //    var result = await _userManager.CreateAsync(user, model.Password!);
-
-        //    if (!result.Succeeded)
-        //    {
-        //        var erro = result.Errors.First().Description;
-        //        throw new BusinessException($"Erro ao criar usuário: {erro}");
-        //    }
-
-        //    await _userManager.AddToRoleAsync(user, roleSolicitada);
-        //}
     }
 }

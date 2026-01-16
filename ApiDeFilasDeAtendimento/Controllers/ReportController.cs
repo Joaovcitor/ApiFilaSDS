@@ -18,12 +18,14 @@ namespace ApiDeFilasDeAtendimento.Controllers
             _reportService = reportService;
         }
         [HttpPost("todas-as-senhas")]
+        [Authorize(Policy = "AcessoAdmin")]
         public async Task<IActionResult> GetSenhas([FromBody] ReportFilter filtros)
         {
             var senhas = await _reportService.TodasAsSenhas(filtros);
             return Ok(senhas);
         }
         [HttpPost("relatorios-senhas-usuario-logado")]
+        [Authorize(Policy = "AcessoOperacional")]
         public async Task<IActionResult> RelatorioUsuarioLogado([FromBody] ReportFilter filtros)
         {
             var senhas = await _reportService.SenhasDoUsuario(filtros);
