@@ -83,7 +83,7 @@ namespace ApiDeFilasDeAtendimento.Services
                     .Where(s => s.TipoAtendimento == userLogado.Atendimento)
                     .FirstOrDefaultAsync(s => s.Id == dados.Id)
                     ?? throw new Exception("Esta senha não existe");
-                    if (senha.StatusSenha == StatusSenha.CHAMADA && (DateTime.UtcNow - senha.DataChamada.Value).TotalSeconds < 30)
+                    if (senha.StatusSenha == StatusSenha.CHAMADA && (DateTime.UtcNow - senha.DataChamada.Value).TotalSeconds < 10)
                     {
                         throw new Exception("Esta senha já foi chamada recentemente");
                     }
