@@ -11,8 +11,5 @@ namespace ApiDeFilasDeAtendimento.DTOs.Guiches
         public required string FuncionarioId { get; set; }
         [Required(ErrorMessage = "A unidade é obrigatória")]
         public Guid UnidadeId { get; set; }
-        [Required(ErrorMessage = "O Dono do guichê é obrigatório")]
-        public required string DonoId { get; set; }
-
     }
 }

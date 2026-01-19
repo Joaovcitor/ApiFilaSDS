@@ -32,7 +32,7 @@ namespace ApiDeFilasDeAtendimento.Services
             var usuarioLogado = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext!.User)
                 ?? throw new UnauthorizedAccessException("Você deve fazer login!");
 
-            guiche.DonoId = usuarioLogado.Id;
+            guiche.DonoId = usuarioLogado.Id ?? throw new BadRequestException("O ID do Dono não pode ser nulo");
             var unidade = await _context.Unidade.FirstOrDefaultAsync(u => u.Id == dados.UnidadeId)
                 ?? throw new NotFoundException("Unidade não encontrada");
 
