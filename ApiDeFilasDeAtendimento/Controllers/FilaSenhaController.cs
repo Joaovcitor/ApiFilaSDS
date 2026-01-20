@@ -85,5 +85,21 @@ namespace ApiDeFilasDeAtendimento.Controllers
             var quantidadeDeSenhas = await _filaService.GetSenhasAtendidasPeloUsuario();
             return Ok(quantidadeDeSenhas);
         }
+        [HttpGet("pendencias-de-senhas")]
+        public async Task<IActionResult> GetPendencias()
+        {
+            var senhasPendentes = await _filaService.GetPendenciasDeSenhasChamadas();
+            return Ok(senhasPendentes);
+        }
+        [HttpGet("senha-chamada")]
+        public async Task<IActionResult> GetSenhaChamada()
+        {
+            var senha = await _filaService.GetSenhaChamada();
+            if(senha == null)
+            {
+                return NoContent();
+            }
+            return Ok(senha);
+        }
     }
 }

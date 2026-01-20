@@ -1,6 +1,7 @@
 ﻿using ApiDeFilasDeAtendimento.Context;
 using ApiDeFilasDeAtendimento.DTOs.Senhas;
 using ApiDeFilasDeAtendimento.Enums;
+using ApiDeFilasDeAtendimento.Exceptions;
 using ApiDeFilasDeAtendimento.Hubs;
 using ApiDeFilasDeAtendimento.Interfaces;
 using ApiDeFilasDeAtendimento.Models;
@@ -195,6 +196,34 @@ namespace ApiDeFilasDeAtendimento.Services
                 .Where(s => s.GuicheId == guicheDoUsuario!.Id && s.DataCriacao >= dataHoje && s.DataCriacao < amanha)
                 .ToListAsync();
             return senhasUser;
+        }
+
+        public async Task<List<FilaSenha>> GetPendenciasDeSenhasChamadas()
+        {
+            var userLogado = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext!.User)
+                ?? throw new UnauthorizedAccessException("Usuário deve estar logado");
+            var guicheDoUsuario = await _context.Guiche.FirstOrDefaultAsync(g => g.FuncionarioId == userLogado.Id)
+                ?? throw new NotFoundException("Guichê não localizado");
+            var senhas = await _context.FilaSenha.Where(s => s.GuicheId == guicheDoUsuario.Id && s.StatusSenha == StatusSenha.CHAMADA)
+                .ToListAsync();
+            return senhas;
+        }
+
+        public async Task<FilaSenha> GetSenhaChamada()
+        {
+            var userLogado = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext!.User)
+                ?? throw new UnauthorizedAccessException("Usuário deve estar logado");
+            var guicheDoUsuario = await _context.Guiche
+                .AsNoTracking()
+                .FirstOrDefaultAsync(g => g.FuncionarioId == userLogado.Id)
+                ?? throw new NotFoundException("Guichê não localizado");
+            var senha = await _context.FilaSenha
+                .FirstOrDefaultAsync(s => s.GuicheId == guicheDoUsuario.Id && s.StatusSenha == StatusSenha.CHAMADA);
+            if (senha != null)
+            {
+                await _hubContext.Clients.Group($"guiche-{guicheDoUsuario.Id}").SendAsync("TicketChamado", senha);
+            }
+            return senha;
         }
     }
 }

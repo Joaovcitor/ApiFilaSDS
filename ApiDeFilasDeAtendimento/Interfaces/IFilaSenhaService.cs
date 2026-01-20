@@ -13,5 +13,7 @@ namespace ApiDeFilasDeAtendimento.Interfaces
         Task<FilaSenha> UpdateMotivoAtendimento(SenhaDtoUpdateMotivoAtendimento dados);
         Task<List<FilaSenha>> GetAguardando();
         Task<List<FilaSenha>> GetSenhasAtendidasPeloUsuario();
+        Task<List<FilaSenha>> GetPendenciasDeSenhasChamadas();
+        Task<FilaSenha> GetSenhaChamada();
     }
 }

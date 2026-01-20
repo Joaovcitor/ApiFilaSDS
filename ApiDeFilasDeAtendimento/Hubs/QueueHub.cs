@@ -26,7 +26,10 @@ namespace ApiDeFilasDeAtendimento.Hubs
         {
             await Clients.Group($"unidade-{unidadeId}").SendAsync("TicketCreated", ticket);
         }
-
+        public async Task TicketChamado(FilaSenha ticket, Guid guicheId)
+        {
+            await Clients.Group($"guiche-{guicheId}").SendAsync("TicketChamado", ticket);
+        }
         public async Task JoinUnit(Guid unidadeId)
         {
             var groupName = $"unidade-{unidadeId}";
@@ -35,6 +38,17 @@ namespace ApiDeFilasDeAtendimento.Hubs
         public async Task LeaveUnit(Guid unidadeId)
         {
             var groupName = $"unidade-{unidadeId}";
+            await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupName);
+        }
+        public async Task JoinGuicheTickesInAtendimentos(Guid guicheId)
+        {
+            var groupName = $"guiche-{guicheId}";
+            await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
+        }
+
+        public async Task LeaveGuicheTickesInAtendimentos(Guid guicheId)
+        {
+            var groupName = $"guiche-{guicheId}";
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupName);
         }
     }
