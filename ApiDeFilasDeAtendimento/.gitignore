@@ -20,3 +20,5 @@ obj/
 # Build (qualquer nível)
 **/bin/
 **/obj/
+
+appsettings.json
