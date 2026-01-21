@@ -31,8 +31,8 @@ namespace ApiDeFilasDeAtendimento.Services
 
         public async Task<FilaSenha> CreateSenha(SenhaDtoCreate dados)
         {
-            var userLogado = await _userManager.GetUserAsync(
-            _httpContextAccessor.HttpContext!.User);
+            var userLogado = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext!.User) 
+                ?? throw new UnauthorizedException("Você deve fazer login");
             var novaSenha = _mapper.Map<FilaSenha>(dados);
 
             var dataHoje = DateTime.UtcNow.Date;
@@ -45,6 +45,7 @@ namespace ApiDeFilasDeAtendimento.Services
             novaSenha.Numero = ultimoNumero + 1;
             novaSenha.DataCriacao = DateTime.UtcNow;
             novaSenha.UnidadeId = userLogado.LocalId;
+            novaSenha.DonoId = userLogado.DonoId;
 
             _context.Set<FilaSenha>().Add(novaSenha);
             await _context.SaveChangesAsync();

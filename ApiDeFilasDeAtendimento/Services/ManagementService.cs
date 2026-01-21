@@ -13,10 +13,12 @@ namespace ApiDeFilasDeAtendimento.Services
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<ApplicationRole> _roleManager;
-        public ManagementService(UserManager<ApplicationUser> userManager, RoleManager<ApplicationRole> roleManager)
+        private readonly IEmailService _emailService;
+        public ManagementService(UserManager<ApplicationUser> userManager, RoleManager<ApplicationRole> roleManager, IEmailService emailService)
         {
             _userManager = userManager;
             _roleManager = roleManager;
+            _emailService = emailService;
         }
 
         public async Task<IdentityResult> AdicionarNovasRoles(string name)
@@ -99,6 +101,7 @@ namespace ApiDeFilasDeAtendimento.Services
             }
 
             await _userManager.AddToRoleAsync(user, role);
+            await _emailService.SendWelcomeAsync(user.NomeCompleto, user.Email!);
             return result;
         }
 

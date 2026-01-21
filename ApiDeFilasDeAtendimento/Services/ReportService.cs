@@ -55,7 +55,9 @@ namespace ApiDeFilasDeAtendimento.Services
 
         public async Task<PagedResult<FilaSenha>> TodasAsSenhas(ReportFilter filtro)
         {
-            var senhas = _context.FilaSenha.AsQueryable();
+            var userLogado = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext!.User)
+                ?? throw new UnauthorizedAccessException("Você deve fazer login");
+            var senhas = _context.FilaSenha.Where(s => s.DonoId == userLogado.Id).AsQueryable();
             if (filtro.DataInicio.HasValue)
             {
                 senhas = senhas.Where(x => x.DataCriacao >= filtro.DataInicio.Value);

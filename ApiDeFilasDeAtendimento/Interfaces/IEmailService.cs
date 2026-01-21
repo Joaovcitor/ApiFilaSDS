@@ -3,6 +3,6 @@
     public interface IEmailService
     {
         Task SendWelcomeAsync(string nomeCompleto, string email);
-        Task ResetPasswordAsync(string email, string resetLink);
+        Task SendPasswordResetAsync(string email, string token);
     }
 }

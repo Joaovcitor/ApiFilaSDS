@@ -10,10 +10,12 @@ namespace ApiDeFilasDeAtendimento.Services
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
-        public AuthService(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)
+        private readonly IEmailService _emailService;
+        public AuthService(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IEmailService emailService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _emailService = emailService;
         }
         public async Task<object> Login(LoginModelDto dados)
         {
@@ -40,6 +42,27 @@ namespace ApiDeFilasDeAtendimento.Services
         public async Task Logout()
         {
             await _signInManager.SignOutAsync();
+        }
+
+        public async Task RequestPasswordReset(string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null) return;
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            await _emailService.SendPasswordResetAsync(user.Email!, token);
+        }
+
+        public async Task ResetPassword(ResetPasswordDto dados)
+        {
+            var user = await _userManager.FindByEmailAsync(dados.Email) 
+                ?? throw new BadRequestException("Solicitação inválida");
+            var result = await _userManager.ResetPasswordAsync(user, dados.Token, dados.NewPassword);
+            if (!result.Succeeded)
+            {
+                var error = result.Errors.FirstOrDefault()?.Description ?? "Erro ao resetar senha.";
+                throw new BadRequestException(error);
+            }
+
         }
     }
 }

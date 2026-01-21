@@ -5,7 +5,8 @@ namespace ApiDeFilasDeAtendimento.Interfaces
     public interface IAuthService
     {
         Task<object> Login(LoginModelDto dados);
-        //Task RegistrarUsuario(RegisterModelDto registerModelDto, string roleSolicitada, string adminId);
         Task Logout();
+        Task RequestPasswordReset(string email);
+        Task ResetPassword(ResetPasswordDto dados);
     }
 }

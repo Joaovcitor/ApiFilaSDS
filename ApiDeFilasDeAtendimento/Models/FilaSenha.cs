@@ -42,6 +42,8 @@ namespace ApiDeFilasDeAtendimento.Models
         public DateTime? DataFinalizacao { get; set; }
         [StringLength(11)]
         public string? Cpf {  get; set; }
+        public virtual ApplicationUser Dono { get; set; }
+        public string? DonoId { get; set; }
 
         [NotMapped]
         public TimeSpan? TempoAtendimento =>
