@@ -53,6 +53,38 @@ namespace ApiDeFilasDeAtendimento.Services
             };
         }
 
+        public async Task<double> TempoDeAtendimento(string donoId)
+        {
+            var senhas = await _context.FilaSenha.AsNoTracking()
+                .Where(s => s.DonoId == donoId && s.DataChamada != null && s.DataFinalizacao != null)
+                .OrderByDescending(s => s.DataFinalizacao)
+                .Take(20)
+                .ToListAsync() 
+                ?? throw new NotFoundException("Não foram encontradas senhas");
+            if(senhas.Count == 0)
+            {
+                return 0;
+            }
+            double mediaEmMinutos = senhas.Average(s => (s.DataFinalizacao!.Value - s.DataChamada!.Value).TotalMinutes);
+            return mediaEmMinutos;
+        }
+
+        public async Task<double> TempoMedioDeEspera(string donoId)
+        {
+            var senhas = await _context.FilaSenha.AsNoTracking()
+                .Where(s => s.DonoId == donoId && s.DataChamada != null)
+                .OrderByDescending(s => s.DataFinalizacao)
+                .Take(10)
+                .ToListAsync()
+                ?? throw new NotFoundException("Não foram encontradas senhas");
+            if(senhas.Count == 0)
+            {
+                return 0; 
+            }
+            double mediaEmMinutos = senhas.Average(s => (s.DataChamada!.Value - s.DataCriacao).TotalMinutes);
+            return mediaEmMinutos;
+        }
+
         public async Task<PagedResult<FilaSenha>> TodasAsSenhas(ReportFilter filtro)
         {
             var userLogado = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext!.User)

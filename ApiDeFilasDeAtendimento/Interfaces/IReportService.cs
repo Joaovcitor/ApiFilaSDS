@@ -8,5 +8,7 @@ namespace ApiDeFilasDeAtendimento.Interfaces
     {
         Task<PagedResult<FilaSenha>> TodasAsSenhas(ReportFilter filtros);
         Task<PagedResult<FilaSenha>> SenhasDoUsuario(ReportFilter filtros);
+        Task<double> TempoDeAtendimento (string donoId);
+        Task<double> TempoMedioDeEspera (string donoId);
     }
 }
