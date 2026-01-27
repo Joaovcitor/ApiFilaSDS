@@ -74,6 +74,7 @@ builder.Services.AddScoped<IReportService, ReportService>();
 builder.Services.AddScoped<IUnidadeService, UnidadeService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IManagementService, ManagementService>();
+builder.Services.AddScoped<ITipoAtendimentosService, TipoAtendimentoService>();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("MinhasPoliticas", policy =>

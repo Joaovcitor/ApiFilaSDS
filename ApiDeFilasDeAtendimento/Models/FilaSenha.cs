@@ -23,9 +23,6 @@ namespace ApiDeFilasDeAtendimento.Models
 
         public bool Prioritario { get; set; } = false;
 
-        // NOVO: Tipo de atendimento
-        public TipoAtendimento TipoAtendimento { get; set; } = TipoAtendimento.CADASTRO_UNICO;
-
         [StringLength(255)]
         public string? FuncionarioNome { get; set; }
         public string? FuncionarioId {  get; set; }
@@ -44,6 +41,9 @@ namespace ApiDeFilasDeAtendimento.Models
         public string? Cpf {  get; set; }
         public virtual ApplicationUser Dono { get; set; }
         public string? DonoId { get; set; }
+        public Guid? TipoAtendimentoId { get; set; }
+        [ForeignKey("TipoAtendimentoId")]
+        public virtual TiposDeAtendimento? TipoDeAtendimento { get; set; }
 
         [NotMapped]
         public TimeSpan? TempoAtendimento =>
@@ -51,8 +51,5 @@ namespace ApiDeFilasDeAtendimento.Models
                 ? DataFinalizacao - DataChamada
                 : null;
 
-        // NOVO: Helper para label do local (Sala vs Guichê)
-        [NotMapped]
-        public string LocalLabel => TipoAtendimento == TipoAtendimento.CADASTRO_UNICO ? "Guichê" : "Sala";
     }
 }

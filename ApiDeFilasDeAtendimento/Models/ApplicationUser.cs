@@ -13,5 +13,6 @@ namespace ApiDeFilasDeAtendimento.Models
         public string? DonoId { get; set; }
         [StringLength(255)]
         public string NomeCompleto { get; set; } = null!;
+        public Guid TipoAtendimentoId { get; set; }
     }
 }

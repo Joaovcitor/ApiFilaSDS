@@ -10,6 +10,7 @@ namespace ApiDeFilasDeAtendimento.Context
         public DbSet<FilaSenha> FilaSenha { get; set; }
         public DbSet<Unidade> Unidade { get; set; }
         public DbSet<Guiche> Guiche { get; set; }
+        public DbSet<TiposDeAtendimento> TiposAtendimento { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);

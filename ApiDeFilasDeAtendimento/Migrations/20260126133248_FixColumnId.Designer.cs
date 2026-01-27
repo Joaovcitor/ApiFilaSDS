@@ -3,6 +3,7 @@ using System;
 using ApiDeFilasDeAtendimento.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ApiDeFilasDeAtendimento.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260126133248_FixColumnId")]
+    partial class FixColumnId
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -189,6 +192,9 @@ namespace ApiDeFilasDeAtendimento.Migrations
                         .HasColumnType("integer");
 
                     b.Property<int>("StatusSenha")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("TipoAtendimento")
                         .HasColumnType("integer");
 
                     b.Property<Guid?>("TipoAtendimentoId")

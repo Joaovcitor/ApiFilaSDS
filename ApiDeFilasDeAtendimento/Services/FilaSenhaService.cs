@@ -60,7 +60,7 @@ namespace ApiDeFilasDeAtendimento.Services
             var userLogado = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext!.User);
 
             return await _context.Set<FilaSenha>()
-                .Where(s => s.StatusSenha == StatusSenha.AGUARDANDO && s.TipoAtendimento == userLogado!.Atendimento && s.UnidadeId == userLogado.LocalId)
+                .Where(s => s.StatusSenha == StatusSenha.AGUARDANDO && s.TipoAtendimentoId == userLogado!.TipoAtendimentoId && s.UnidadeId == userLogado.LocalId)
                 .OrderBy(s => s.Prioritario ? 0 : 1)
                 .ThenBy(s => s.DataCriacao)
                 .ToListAsync();
@@ -82,7 +82,7 @@ namespace ApiDeFilasDeAtendimento.Services
 
                     var senha = await _context.Set<FilaSenha>()
                     .AsNoTracking()
-                    .Where(s => s.TipoAtendimento == userLogado.Atendimento)
+                    .Where(s => s.TipoAtendimentoId == userLogado.TipoAtendimentoId)
                     .FirstOrDefaultAsync(s => s.Id == dados.Id)
                     ?? throw new Exception("Esta senha não existe");
                     if (senha.StatusSenha == StatusSenha.CHAMADA && (DateTime.UtcNow - senha.DataChamada.Value).TotalSeconds < 10)

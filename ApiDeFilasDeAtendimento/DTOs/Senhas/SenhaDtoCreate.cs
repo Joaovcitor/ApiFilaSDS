@@ -15,4 +15,6 @@ public class SenhaDtoCreate
     [Required]
     public Guid UnidadeId { get; set; }
     public string? Cpf {  get; set; }
+    [Required(ErrorMessage = "O Tipo de atendimento é obrigatório")]
+    public Guid TipoAtendimentoId { get; set; }
 }

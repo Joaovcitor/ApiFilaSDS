@@ -58,6 +58,7 @@ namespace ApiDeFilasDeAtendimento.Services
             user.NomeCompleto = dados.NomeCompleto;
             user.LocalId = dados.LocalId;
             user.Email = dados.Email;
+            user.TipoAtendimentoId = (Guid)dados.TiposDeAtendimentoId;
 
             var result = await _userManager.UpdateAsync(user);
             if (!result.Succeeded)
