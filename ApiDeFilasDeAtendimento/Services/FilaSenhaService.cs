@@ -31,7 +31,7 @@ namespace ApiDeFilasDeAtendimento.Services
 
         public async Task<FilaSenha> CreateSenha(SenhaDtoCreate dados)
         {
-            var userLogado = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext!.User) 
+            var userLogado = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext!.User)
                 ?? throw new UnauthorizedException("Você deve fazer login");
             var novaSenha = _mapper.Map<FilaSenha>(dados);
 
@@ -224,6 +224,24 @@ namespace ApiDeFilasDeAtendimento.Services
             {
                 await _hubContext.Clients.Group($"guiche-{guicheDoUsuario.Id}").SendAsync("TicketChamado", senha);
             }
+            return senha;
+        }
+
+        public async Task<FilaSenha> RemanejarSenhaParaOutroAtendimento(Guid Id, Guid atendimentoId)
+        {
+            var senha = await _context.FilaSenha.FindAsync(Id)
+                ?? throw new NotFoundException("Senha não encontrada");
+            var atendimentoExiste = await _context.TiposAtendimento.FindAsync(atendimentoId);
+            if (atendimentoExiste is null)
+                throw new NotFoundException("Atendimento não encontrado");
+            if (senha.TipoAtendimentoId == atendimentoId)
+                throw new BadRequestException("Essa senha já está nesse tipo de atendimento");
+            senha.TipoAtendimentoId = atendimentoId;
+            senha.StatusSenha = StatusSenha.AGUARDANDO;
+            senha.DataCriacao = DateTime.UtcNow;
+            senha.GuicheId = null;
+            senha.FuncionarioId = null;
+            await _context.SaveChangesAsync();
             return senha;
         }
     }

@@ -15,5 +15,6 @@ namespace ApiDeFilasDeAtendimento.Interfaces
         Task<List<FilaSenha>> GetSenhasAtendidasPeloUsuario();
         Task<List<FilaSenha>> GetPendenciasDeSenhasChamadas();
         Task<FilaSenha> GetSenhaChamada();
+        Task<FilaSenha> RemanejarSenhaParaOutroAtendimento(Guid Id, Guid atendimentoId);
     }
 }

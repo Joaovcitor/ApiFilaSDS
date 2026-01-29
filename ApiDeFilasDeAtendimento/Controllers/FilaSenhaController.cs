@@ -101,5 +101,11 @@ namespace ApiDeFilasDeAtendimento.Controllers
             }
             return Ok(senha);
         }
+        [HttpPost("remanejar-senha/{Id}/{atendimentoId}")]
+        public async Task<IActionResult> RemanejarSenha(Guid Id, Guid atendimentoId)
+        {
+            var senha = await _filaService.RemanejarSenhaParaOutroAtendimento(Id, atendimentoId);
+            return Ok(senha);
+        }
     }
 }
