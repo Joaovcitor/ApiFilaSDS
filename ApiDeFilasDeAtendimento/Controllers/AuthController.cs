@@ -49,5 +49,12 @@ namespace ApiDeFilasDeAtendimento.Controllers
 
             return Ok(new { Message = "Senha redefinida com sucesso!" });
         }
+        [HttpGet("me")]
+        [Authorize]
+        public async Task<IActionResult> GetMe()
+        {
+            var user = await _authService.Me();
+            return Ok(user);
+        }
     }
 }

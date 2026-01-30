@@ -8,5 +8,6 @@ namespace ApiDeFilasDeAtendimento.Interfaces
         Task Logout();
         Task RequestPasswordReset(string email);
         Task ResetPassword(ResetPasswordDto dados);
+        Task<object> Me();
     }
 }

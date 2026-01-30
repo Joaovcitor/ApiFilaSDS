@@ -3,6 +3,7 @@ using ApiDeFilasDeAtendimento.Exceptions;
 using ApiDeFilasDeAtendimento.Interfaces;
 using ApiDeFilasDeAtendimento.Models;
 using Microsoft.AspNetCore.Identity;
+using System.Data;
 
 namespace ApiDeFilasDeAtendimento.Services
 {
@@ -11,6 +12,8 @@ namespace ApiDeFilasDeAtendimento.Services
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IEmailService _emailService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
         public AuthService(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IEmailService emailService)
         {
             _userManager = userManager;
@@ -42,6 +45,21 @@ namespace ApiDeFilasDeAtendimento.Services
         public async Task Logout()
         {
             await _signInManager.SignOutAsync();
+        }
+
+        public async Task<object> Me()
+        {
+            var user = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext!.User)
+                ?? throw new UnauthorizedException("Você deve realizar login");
+            var roles = await _userManager.GetRolesAsync(user);
+            return new
+            {
+                user.Id,
+                user.UserName,
+                user.NomeCompleto,
+                user.LocalId,
+                Roles = roles,
+            };
         }
 
         public async Task RequestPasswordReset(string email)
