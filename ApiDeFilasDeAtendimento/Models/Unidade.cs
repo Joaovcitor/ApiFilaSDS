@@ -11,6 +11,8 @@ namespace ApiDeFilasDeAtendimento.Models
         [Required(ErrorMessage = "O Local da unidade é obrigatório")]
         [StringLength(255)]
         public string Local { get; set; }
+        public bool Ativo { get; set; } = true;
+        public string? Codigo { get; set; }
         public ICollection<ApplicationUser> ApplicationUsers { get; set; } = [];
         public ICollection<Guiche> Guiches { get; set; } = [];
         public ICollection<FilaSenha> FilasSenhas { get; set; } = [];
