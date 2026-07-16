@@ -1,0 +1,103 @@
+############################
+# IDEs
+############################
+
+# Visual Studio
+.vs/
+
+# JetBrains Rider / IntelliJ
+.idea/
+
+# VS Code
+.vscode/
+
+############################
+# Build
+############################
+
+bin/
+obj/
+**/bin/
+**/obj/
+
+############################
+# User files
+############################
+
+*.user
+*.suo
+*.userosscache
+*.rsuser
+*.sln.docstates
+*.slnx
+
+############################
+# Logs
+############################
+
+*.log
+
+############################
+# NuGet
+############################
+
+*.nupkg
+packages/
+
+############################
+# ASP.NET Core
+############################
+
+appsettings.json
+appsettings.Development.json
+appsettings.Local.json
+appsettings.*.local.json
+
+############################
+# Secrets
+############################
+
+secrets.json
+*.pfx
+*.p12
+*.snk
+*.key
+*.pem
+*.crt
+
+############################
+# Environment
+############################
+
+.env
+.env.*
+!.env.example
+
+############################
+# OS
+############################
+
+.DS_Store
+Thumbs.db
+
+############################
+# Publish
+############################
+
+publish/
+artifacts/
+
+############################
+# Test Results
+############################
+
+TestResults/
+coverage/
+*.coverage
+*.coveragexml
+
+############################
+# Generated files
+############################
+
+Generated/
