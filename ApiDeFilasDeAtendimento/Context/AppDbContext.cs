@@ -11,6 +11,7 @@ namespace ApiDeFilasDeAtendimento.Context
         public DbSet<Unidade> Unidade { get; set; }
         public DbSet<Guiche> Guiche { get; set; }
         public DbSet<TiposDeAtendimento> TiposAtendimento { get; set; }
+        public DbSet<ConteudoPainel> ConteudoPainels { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);

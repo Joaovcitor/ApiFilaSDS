@@ -3,6 +3,7 @@ using System;
 using ApiDeFilasDeAtendimento.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ApiDeFilasDeAtendimento.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260720120353_MidiaConteudo")]
+    partial class MidiaConteudo
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -73,7 +76,7 @@ namespace ApiDeFilasDeAtendimento.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("boolean");
 
-                    b.Property<Guid?>("LocalId")
+                    b.Property<Guid>("LocalId")
                         .HasColumnType("uuid");
 
                     b.Property<bool>("LockoutEnabled")
@@ -478,7 +481,8 @@ namespace ApiDeFilasDeAtendimento.Migrations
                     b.HasOne("ApiDeFilasDeAtendimento.Models.Unidade", "Local")
                         .WithMany("ApplicationUsers")
                         .HasForeignKey("LocalId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.HasOne("ApiDeFilasDeAtendimento.Models.TiposDeAtendimento", null)
                         .WithMany("Users")

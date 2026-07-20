@@ -44,7 +44,7 @@ namespace ApiDeFilasDeAtendimento.Services
 
             novaSenha.Numero = ultimoNumero + 1;
             novaSenha.DataCriacao = DateTime.UtcNow;
-            novaSenha.UnidadeId = userLogado.LocalId;
+            novaSenha.UnidadeId = userLogado.LocalId ?? throw new BadRequestException("Usuário deve ter um local associado a ele.");
             novaSenha.DonoId = userLogado.DonoId;
 
             _context.Set<FilaSenha>().Add(novaSenha);
